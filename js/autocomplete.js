@@ -11,6 +11,7 @@ class ExpenseAutocomplete {
         this.debounceTimer = null;
         this.suppressSuggestions = false;
         this.suppressTimer = null;
+        this.currencySymbol = this.getCurrencySymbol();
         
         this.init();
     }
@@ -31,6 +32,16 @@ class ExpenseAutocomplete {
     async loadExpenses() {
         if (!window.app || !window.app.db) return;
         this.allExpenses = await window.app.db.getAllExpenses();
+    }
+
+    getCurrencySymbol() {
+        const currency = localStorage.getItem('currency') || 'XOF';
+        const symbols = {
+            'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥',
+            'XOF': 'FCFA', 'XAF': 'FCFA', 'MAD': 'MAD', 'DZD': 'DA', 'TND': 'DT',
+            'NGN': '₦', 'ZAR': 'R', 'BRL': 'R$', 'RUB': '₽', 'INR': '₹', 'AUD': 'A$'
+        };
+        return symbols[currency] || 'FCFA';
     }
 
     attachEvents() {
