@@ -9,18 +9,15 @@ class ExpenseAutocomplete {
         this.suggestions = [];
         this.allExpenses = [];
         this.debounceTimer = null;
+        this.suppressSuggestions = false;
+        this.suppressTimer = null;
         
         this.init();
     }
 
     init() {
-        // Créer le conteneur de suggestions
         this.createContainer();
-        
-        // Charger les données initiales
         this.loadExpenses();
-        
-        // Écouter les événements
         this.attachEvents();
     }
 
@@ -33,8 +30,6 @@ class ExpenseAutocomplete {
 
     async loadExpenses() {
         if (!window.app || !window.app.db) return;
-        
-        // Récupérer toutes les dépenses du compte courant
         this.allExpenses = await window.app.db.getAllExpenses();
     }
 
@@ -43,7 +38,9 @@ class ExpenseAutocomplete {
         this.input.addEventListener('input', (e) => {
             const value = e.target.value.trim();
             
-            // Débounce pour éviter trop de calculs
+            // Ne pas montrer les suggestions si elles sont supprimées
+            if (this.suppressSuggestions) return;
+            
             clearTimeout(this.debounceTimer);
             this.debounceTimer = setTimeout(() => {
                 this.showSuggestions(value);
@@ -55,6 +52,11 @@ class ExpenseAutocomplete {
             if (!this.container.contains(e.target) && e.target !== this.input) {
                 this.container.classList.remove('active');
             }
+        });
+
+        // Empêcher la fermeture au clic sur le container
+        this.container.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
 
         // Navigation au clavier
@@ -87,43 +89,40 @@ class ExpenseAutocomplete {
         });
     }
 
-    async showSuggestions(searchTerm) {
+    showSuggestions(searchTerm) {
         if (searchTerm.length < 2) {
             this.container.classList.remove('active');
             return;
         }
-
-        // Recharger les données si nécessaire
-        await this.loadExpenses();
-
-        // Analyser les noms de dépenses
-        const nameStats = this.analyzeExpenseNames();
         
-        // Filtrer les suggestions
-        let suggestions = nameStats
-            .filter(item => 
-                item.name.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-            .sort((a, b) => {
-                // Priorité aux correspondances exactes
-                const aExact = a.name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                const bExact = b.name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                
-                if (aExact && !bExact) return -1;
-                if (!aExact && bExact) return 1;
-                
-                // Puis par fréquence d'utilisation
-                return b.count - a.count;
-            })
-            .slice(0, 8); // Limiter à 8 suggestions
-
-        if (suggestions.length === 0) {
-            this.container.classList.remove('active');
+        // Éviter de montrer les suggestions si le délai est actif
+        if (this.suppressSuggestions) {
             return;
         }
+        
+        // Recharger les données si nécessaire
+        this.loadExpenses().then(() => {
+            const nameStats = this.analyzeExpenseNames();
+            
+            let suggestions = nameStats
+                .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                .sort((a, b) => {
+                    const aExact = a.name.toLowerCase().startsWith(searchTerm.toLowerCase());
+                    const bExact = b.name.toLowerCase().startsWith(searchTerm.toLowerCase());
+                    if (aExact && !bExact) return -1;
+                    if (!aExact && bExact) return 1;
+                    return b.count - a.count;
+                })
+                .slice(0, 8);
 
-        this.renderSuggestions(suggestions, searchTerm);
-        this.container.classList.add('active');
+            if (suggestions.length === 0) {
+                this.container.classList.remove('active');
+                return;
+            }
+
+            this.renderSuggestions(suggestions, searchTerm);
+            this.container.classList.add('active');
+        });
     }
 
     analyzeExpenseNames() {
@@ -155,8 +154,6 @@ class ExpenseAutocomplete {
         this.container.innerHTML = suggestions.map(item => {
             const average = (item.total / item.count).toFixed(2);
             const lastUsed = new Date(item.lastUsed).toLocaleDateString('fr-FR');
-            
-            // Mettre en évidence le terme recherché
             const highlightedName = this.highlightMatch(item.name, searchTerm);
             
             return `
@@ -174,9 +171,9 @@ class ExpenseAutocomplete {
             `;
         }).join('');
 
-        // Ajouter les événements de clic
         this.container.querySelectorAll('.suggestion-item').forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.applySuggestion(item.dataset.name);
             });
         });
@@ -188,15 +185,21 @@ class ExpenseAutocomplete {
     }
 
     applySuggestion(name) {
+        // Désactiver temporairement les suggestions
+        this.suppressSuggestions = true;
+        
         this.input.value = name;
         this.container.classList.remove('active');
-        this.input.blur(); // ← Perd le focus pour éviter la réouverture
         
-        // Déclencher un événement input pour validation
+        // Déclencher les événements
         this.input.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        // Déclencher un événement change pour sauvegarder
         this.input.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // Réactiver les suggestions après 500ms
+        if (this.suppressTimer) clearTimeout(this.suppressTimer);
+        this.suppressTimer = setTimeout(() => {
+            this.suppressSuggestions = false;
+        }, 500);
     }
 
     selectNext(items, currentIndex) {
