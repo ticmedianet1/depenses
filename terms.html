@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditions d'utilisation - Gestion Dépenses</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2b2d42, #4361ee);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header h1 span {
+            font-size: 0.5em;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 50px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .badge-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            backdrop-filter: blur(5px);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .last-updated {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+            color: #666;
+            border-left: 4px solid #4361ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .version {
+            background: #4361ee;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        h2 {
+            color: #2b2d42;
+            margin: 30px 0 15px 0;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        h2 .material-icons {
+            color: #4361ee;
+        }
+
+        h3 {
+            color: #4361ee;
+            margin: 25px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #4a4e69;
+        }
+
+        ul, ol {
+            margin: 15px 0 20px 30px;
+            color: #4a4e69;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 4px solid #4cc9f0;
+        }
+
+        .highlight strong {
+            color: #2b2d42;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .notice {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffb703;
+        }
+
+        .notice strong {
+            color: #856404;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background: #4361ee;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: #2b2d42;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            background: #2b2d42;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #4cc9f0;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .footer-links a {
+            color: white;
+            opacity: 0.8;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+                flex-direction: column;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .badge-container {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            .last-updated {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                📜 Conditions d'utilisation
+                <span>v1.0</span>
+            </h1>
+            <p>Application de Gestion des Dépenses</p>
+            <div class="badge-container">
+                <span class="badge">🔒 Données privées</span>
+                <span class="badge">📱 Application locale</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="last-updated">
+                <span>🔄 Dernière mise à jour : <strong>20 février 2025</strong></span>
+                <span class="version">Version 1.0</span>
+            </div>
+
+            <div class="notice">
+                <strong>⚠️ À LIRE ATTENTIVEMENT</strong>
+                <p>Les présentes conditions d'utilisation régissent votre utilisation de l'application de Gestion des Dépenses. En utilisant cette application, vous acceptez ces conditions dans leur intégralité.</p>
+            </div>
+
+            <h2>
+                <span class="material-icons">description</span>
+                1. Acceptation des conditions
+            </h2>
+            <p>En accédant à l'application Gestion Dépenses, vous confirmez avoir lu, compris et accepté d'être lié par toutes les conditions énoncées ci-dessous. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser l'application.</p>
+
+            <h2>
+                <span class="material-icons">info</span>
+                2. Description du service
+            </h2>
+            <p>Gestion Dépenses est une application de suivi de dépenses personnelles qui permet aux utilisateurs de :</p>
+            <ul>
+                <li>✓ Enregistrer leurs dépenses quotidiennes (nom, montant, date/heure)</li>
+                <li>✓ Filtrer et consulter l'historique des dépenses</li>
+                <li>✓ Visualiser des statistiques (total, moyenne, etc.)</li>
+                <li>✓ Sauvegarder leurs données sur Google Drive (optionnel)</li>
+                <li>✓ Recevoir des rappels pour noter leurs dépenses (optionnel)</li>
+            </ul>
+
+            <div class="card">
+                <div class="card-title">📊 Caractéristiques techniques</div>
+                <ul style="margin:0;">
+                    <li><strong>Stockage local :</strong> IndexedDB (données stockées sur votre appareil)</li>
+                    <li><strong>Synchronisation :</strong> Google Drive (dossier appDataFolder privé)</li>
+                    <li><strong>Mode hors ligne :</strong> Disponible sans connexion internet</li>
+                    <li><strong>Sécurité :</strong> Authentification OAuth 2.0 Google</li>
+                </ul>
+            </div>
+
+            <h2>
+                <span class="material-icons">account_circle</span>
+                3. Compte utilisateur
+            </h2>
+            <h3>3.1 Création et connexion</h3>
+            <p>L'application utilise l'authentification Google OAuth 2.0. Vous devez disposer d'un compte Google valide pour utiliser les fonctionnalités de synchronisation. Sans connexion, l'application fonctionne en mode local uniquement.</p>
+
+            <h3>3.2 Responsabilités</h3>
+            <p>Vous êtes responsable de :</p>
+            <ul>
+                <li>Maintenir la confidentialité de votre compte Google</li>
+                <li>Toutes les activités réalisées via votre compte</li>
+                <li>L'exactitude des données que vous saisissez</li>
+                <li>La sauvegarde de vos données (nous recommandons d'activer la synchronisation Drive)</li>
+            </ul>
+
+            <h2>
+                <span class="material-icons">security</span>
+                4. Propriété des données
+            </h2>
+            <div class="highlight">
+                <strong>🔑 Règle fondamentale :</strong>
+                <p><strong>VOUS</strong> possédez vos données. L'application ne fait que les stocker localement sur votre appareil et, avec votre consentement, dans votre espace Google Drive privé. Nous n'avons pas accès à vos données.</p>
+            </div>
+            <p>Toutes les données que vous saisissez dans l'application (dépenses, noms, montants, dates) restent votre propriété exclusive. L'application ne collecte, ne stocke, ni ne partage aucune de ces données sur des serveurs externes (hormis votre Google Drive si vous activez la synchronisation).</p>
+
+            <h2>
+                <span class="material-icons">sync</span>
+                5. Synchronisation Google Drive
+            </h2>
+            <p>La synchronisation avec Google Drive est une fonctionnalité optionnelle. En l'activant :</p>
+            <ul>
+                <li>Vous autorisez l'application à créer/modifier un fichier dans le dossier appDataFolder de votre Drive</li>
+                <li>Ce dossier est privé et inaccessible aux autres applications/utilisateurs</li>
+                <li>L'application ne peut pas voir, lire ou modifier d'autres fichiers sur votre Drive</li>
+                <li>Vous pouvez révoquer cet accès à tout moment depuis les paramètres de votre compte Google</li>
+            </ul>
+
+            <h2>
+                <span class="material-icons">notifications</span>
+                6. Notifications et rappels
+            </h2>
+            <p>Les notifications sont une fonctionnalité optionnelle. En les activant :</p>
+            <ul>
+                <li>Vous recevrez des rappels pour enregistrer vos dépenses</li>
+                <li>Vous serez alerté lorsque votre budget approche de sa limite</li>
+                <li>Aucune donnée n'est transmise à des tiers pour ces notifications</li>
+                <li>Vous pouvez désactiver les notifications à tout moment</li>
+            </ul>
+
+            <h2>
+                <span class="material-icons">gavel</span>
+                7. Limitation de responsabilité
+            </h2>
+            <p>L'application est fournie "telle quelle", sans garantie d'aucune sorte. Nous ne pouvons être tenus responsables :</p>
+            <ul>
+                <li>De la perte accidentelle de vos données</li>
+                <li>Des dommages directs ou indirects liés à l'utilisation de l'application</li>
+                <li>Des erreurs de saisie ou d'interprétation des données</li>
+                <li>Des interruptions temporaires du service</li>
+                <li>Des problèmes liés à Google Drive (indisponibilité, perte de données)</li>
+            </ul>
+
+            <h2>
+                <span class="material-icons">update</span>
+                8. Modifications du service
+            </h2>
+            <p>Nous nous réservons le droit de modifier, suspendre ou interrompre tout ou partie de l'application à tout moment, avec ou sans préavis. Nous ne serons pas responsables envers vous ou tout tiers pour toute modification, suspension ou interruption.</p>
+
+            <h2>
+                <span class="material-icons">policy</span>
+                9. Politique de confidentialité
+            </h2>
+            <p>Notre politique de confidentialité décrit comment nous traitons vos données personnelles. En utilisant l'application, vous consentez à la collecte et à l'utilisation de vos données conformément à cette politique, disponible à l'adresse : <a href="https://wisdak.net/privacy">https://wisdak.net/privacy</a></p>
+
+            <h2>
+                <span class="material-icons">delete</span>
+                10. Suppression de compte et données
+            </h2>
+            <p>Vous pouvez à tout moment :</p>
+            <ul>
+                <li><strong>Supprimer des dépenses individuellement</strong> via l'interface de l'application</li>
+                <li><strong>Réinitialiser toutes vos données</strong> en vidant le stockage local du navigateur</li>
+                <li><strong>Révoquer l'accès Google Drive</strong> depuis les paramètres de votre compte Google</li>
+                <li><strong>Désinstaller l'application</strong> en supprimant les fichiers</li>
+            </ul>
+
+            <h2>
+                <span class="material-icons">email</span>
+                11. Contact
+            </h2>
+            <p>Pour toute question concernant ces conditions d'utilisation, veuillez nous contacter :</p>
+            <ul>
+                <li>📧 Email : <a href="mailto:contact@wisdak.net">contact@wisdak.net</a></li>
+                <li>🌐 Site web : <a href="https://wisdak.net" target="_blank">https://wisdak.net</a></li>
+                <li>📬 Adresse : [Ton adresse si nécessaire]</li>
+            </ul>
+
+            <table>
+                <tr>
+                    <th>Moyen de contact</th>
+                    <th>Délai de réponse</th>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>48-72 heures ouvrées</td>
+                </tr>
+                <tr>
+                    <td>Formulaire de contact</td>
+                    <td>24-48 heures ouvrées</td>
+                </tr>
+            </table>
+
+            <div class="notice">
+                <strong>📌 Résumé pour l'utilisateur :</strong>
+                <p>Vous possédez vos données, l'application n'y a pas accès. La synchronisation Drive est optionnelle. Pas de garantie mais nous faisons de notre mieux. En cas de problème, contactez-nous !</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Gestion Dépenses - Application de suivi de dépenses personnelles</p>
+            <div class="footer-links">
+                <a href="https://wisdak.net">Accueil</a>
+                <a href="https://wisdak.net/privacy">Politique de confidentialité</a>
+                <a href="mailto:contact@wisdak.net">Contact</a>
+            </div>
+            <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.7;">
+                Dernière mise à jour des conditions : 20 février 2025
+            </p>
+        </div>
+    </div>
+</body>
+</html>

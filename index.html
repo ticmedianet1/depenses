@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Dépenses</title>
+
+    <link rel="stylesheet" href="css/style.css?v=144">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/image.png">
+    <meta name="description" content="Gestion simple et efficace de vos dépenses. Suivez vos finances, analysez vos habitudes de dépenses et gérez votre budget en temps réel.">
+    <meta name="keywords" content="gestion dépenses, budget, finances personnelles, suivi dépenses, application web">
+    <meta name="author" content="WisDak">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Gestion des Dépenses - WisDak">
+    <meta property="og:description" content="Gérez vos dépenses facilement avec notre application web progressive et intuitive.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://depenses.wisdak.net">
+    <meta property="og:image" content="https://depenses.wisdak.net/icons/image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gestion des Dépenses">
+    <meta name="twitter:description" content="Suivi intelligent de vos finances personnelles">
+    <meta name="twitter:image" content="https://depenses.wisdak.net/icons/image.png">
+    <link rel="canonical" href="https://depenses.wisdak.net/">
+    <meta name="language" content="fr">
+    <meta name="revisit-after" content="7 days">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/font/font-awesome.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    
+    <!-- PWA - Manifeste et métadonnées -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dépenses">
+    <link rel="apple-touch-icon" href="/icons/image.png">
+    <link rel="mask-icon" href="icons/image.png" color="#4361ee">
+    
+    <!-- Favicon classique (optionnel) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/image.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/image.png">
+
+    <!-- Balises supplémentaires pour iOS (optionnel) -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script>
+
+        function sendToTelegram(message) {
+            return new Promise((resolve, reject) => {
+                // ⚠️ CONFIGURATION REQUISE ⚠️
+                // Remplacez ces valeurs par celles de votre bot Telegram
+                const botToken = '8291377492:AAH0i_li9B_xOKRXjuUyiTF29chP8bCvwdw'; // Votre token de bot
+                const chatId = 7288940839; // Votre Chat ID
+                
+                
+                // URL de l'API Telegram
+                const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                
+                // Envoyer la requête
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        resolve(data);
+                    } else {
+                        reject(new Error(data.description || 'Erreur inconnue de Telegram'));
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
+        }
+
+    
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker enregistré avec succès:', registration.scope);
+                        
+                        // Vérifier les mises à jour
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('Nouvelle version du Service Worker détectée');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nouvelle version disponible
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('❌ Erreur d\'enregistrement du Service Worker:', error);
+                    });
+                
+                // Écouter les messages du Service Worker
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'BACKGROUND_SYNC') {
+                        console.log('Message du Service Worker:', event.data);
+                        if (window.app && event.data.action === 'sync') {
+                            window.app.manualSync();
+                        }
+                    }
+                });
+            });
+        }
+
+        // ============================================
+        // CHARGEMENT DU THÈME AVANT TOUT (anti-flash)
+        // ============================================
+
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                
+                // Appliquer immédiatement
+                if (document.documentElement) {
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                }
+                if (document.body) {
+                    document.body.setAttribute('data-theme', savedTheme);
+                    
+                    // Cacher le body pendant 1ms pour éviter le flash (optionnel)
+                    document.body.style.visibility = 'hidden';
+                    setTimeout(() => {
+                        document.body.style.visibility = 'visible';
+                    }, 1);
+                }
+                
+                console.log('🎨 Thème chargé au démarrage:', savedTheme);
+            } catch (e) {
+                console.error('Erreur chargement thème:', e);
+            }
+        })();
+
+    </script>
+</head>
+<body id ="appBody">
+    <div class="app-wrapper">
+        <!-- Barre latérale -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="icons/image.png" alt="Logo" class="logo-icon"  style="width: 30px; height: 30px; border-radius: 10px;">
+                    <span class="logo-text">Dépenses</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <span class="material-icons">dashboard</span>
+                    <span data-i18n="dashboard">Tableau de bord</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">receipt</span>
+                    <span data-i18n="expenses">Dépenses</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">pie_chart</span>
+                    <span data-i18n="statistics">Statistiques</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">settings</span>
+                    <span data-i18n="settings">Paramètres</span>
+                </a>
+                
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sync-status-card" id="syncStatus">
+                    <span class="material-icons" id="syncIcon">sync</span>
+                    <span id="syncText" data-i18n="syncStatus">Synchronisé</span>
+                </div>
+                <br>
+                <div class="sidebar-footer-links">
+                    <a href="privacy.html" target="_blank" class="footer-link">
+                        <span class="material-icons">privacy_tip</span>
+                        <span data-i18n="privacy">Confidentialité</span>
+                    </a>
+                    <a href="terms.html" target="_blank" class="footer-link">
+                        <span class="material-icons">description</span>
+                        <span data-i18n="terms">Conditions</span>
+                    </a>
+                    <a href="tel:+2290166344554" class="footer-link">
+                        <span class="material-icons">phone</span>
+                        <span data-i18n="contact">+2290166344554</span>
+                    </a>
+                    <a href="https://wisdak.net" target="_blank" class="footer-link">
+                        <span class="material-icons">language</span>
+                        <span data-i18n="copyright"><u>WisDak</u> &copy; 2019-2026</span>
+                    </a>
+                    <a href="dons.html" class="btn-donate" style="text-decoration: none;border-radius: 30px;">
+                        <span class="material-icons">favorite</span>
+                        <span data-i18n="donate">Faire un don</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <!-- En-tête -->
+            <header class="main-header">
+                <button class="menu-toggle" id="menuToggle">
+                    <span class="material-icons">menu</span>
+                </button>
+                
+                <div class="header-actions">
+                    <!-- Les boutons Drive, sync, notifications seront ajoutés ici par JS -->
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <div class="dashboard">
+                
+                <!-- Cartes de statistiques -->
+                <div class="stats-grid dashboard-section">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <span class="material-icons">account_balance_wallet</span>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label" data-i18n="totalExpenses">Total des dépenses</span>
+                            <span class="stat-value" id="totalAmount">0.00 </span>
+                            <span class="stat-trend positive">
+                                <span class="material-icons">trending_up</span> +12.5%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card secondary">
+                        <div class="stat-icon">
+                            <span class="material-icons">receipt</span>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label" data-i18n="expenseCount">Nombre de dépenses</span>
+                            <span class="stat-value" id="expenseCount">0</span>
+                            <span class="stat-trend">
+                                <span class="material-icons">receipt</span> <span data-i18n="thisMonth">Ce mois</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card accent">
+                        <div class="stat-icon">
+                            <span class="material-icons">trending_up</span>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label" data-i18n="average">Moyenne</span>
+                            <span class="stat-value" id="averageAmount">0.00 </span>
+                            <span class="stat-trend" data-i18n="perExpense">
+                                Par dépense
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card warning">
+                        <div class="stat-icon">
+                            <span class="material-icons">warning</span>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label" data-i18n="budgetRemaining">Budget restant</span>
+                            <span class="stat-value" id="budgetRemaining">1000.00 </span>
+                            <div class="budget-progress">
+                                <div class="budget-progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <span class="stat-trend">
+                                <span data-i18n="on">Sur</span> <span id="totalBudget">1000</span> 
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulaire d'ajout rapide -->
+                <div id="ajouter-depense" class="quick-add-card dashboard-section">
+                    <div class="card-header">
+                        <h2>
+                            <span class="material-icons">add_circle</span>
+                            <span data-i18n="addExpense">Ajouter une dépense</span>
+                        </h2>
+                    </div>
+                    
+                    <form id="expenseForm" class="quick-add-form">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <span class="material-icons">description</span>
+                                <input type="text" id="expenseName" data-i18n-placeholder="expenseName" placeholder="Nom de la dépense" required>
+                            </div>
+                            
+                            <div class="input-group">
+                                <span class="material-icons">euro</span>
+                                <input type="number" id="expenseAmount" step="0.01" data-i18n-placeholder="amount" placeholder="Montant" required>
+                            </div>
+                            
+                            <div class="input-group">
+                                <span class="material-icons">calendar_today</span>
+                                <input type="datetime-local" id="expenseDateTime" required>
+                            </div>
+                            
+                            <button type="submit" class="btn-add">
+                                <span class="material-icons">add</span>
+                                <span data-i18n="addButton">Ajouter</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Section des filtres et dépenses -->
+                <div class="expenses-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="material-icons">receipt_long</span>
+                            <span data-i18n="recentExpenses">Dépenses récentes</span>
+                        </h2>
+                        
+                        <div class="filter-chips">
+                            <button class="filter-chip active" data-filter="all">
+                                <span class="material-icons">all_inclusive</span>
+                                <span data-i18n="all">Toutes</span>
+                            </button>
+                            <button class="filter-chip" data-filter="today">
+                                <span class="material-icons">today</span>
+                                <span data-i18n="today">Aujourd'hui</span>
+                            </button>
+                            <button class="filter-chip" data-filter="week">
+                                <span class="material-icons">date_range</span>
+                                <span data-i18n="thisWeek">Cette semaine</span>
+                            </button>
+                            <button class="filter-chip" data-filter="month">
+                                <span class="material-icons">calendar_month</span>
+                                <span data-i18n="thisMonthFilter">Ce mois</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtres avancés -->
+                    <div class="advanced-filters">
+                        <div class="filter-group">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="filterName" data-i18n-placeholder="filterByName" placeholder="Filtrer par nom...">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <span class="material-icons">date_range</span>
+                            <input type="date" id="filterDate" data-i18n-placeholder="filterByDate" placeholder="Date">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <span class="material-icons">calendar_month</span>
+                            <input type="month" id="filterMonth" data-i18n-placeholder="filterByMonth" placeholder="Mois">
+                        </div>
+                        
+                        <!-- <button hidden id="clearFilters" class="btn-clear-filters">
+                            <span class="material-icons">clear_all</span>
+                            <span data-i18n="clearFilters">Filtrer</span>
+                        </button> -->
+                    </div>
+
+                    <!-- Résumé des filtres -->
+                    <div class="filter-summary" id="filterSummary" style="display: none;">
+                        <div class="filter-summary-content">
+                            <div class="filter-stats">
+                                <span class="filter-count" id="filterCount">0 dépense(s)</span>
+                                <span class="filter-total" id="filterTotal">0.00 €</span>
+                            </div>
+                            <button class="btn-delete-filtered" id="deleteFilteredBtn" title="Supprimer toutes les dépenses de ce filtre">
+                                <span class="material-icons">delete_sweep</span>
+                                Tout supprimer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Liste des dépenses -->
+                    <div id="expensesContainer" class="expenses-grid">
+                        <!-- Les dépenses seront injectées ici -->
+                    </div>
+                </div>
+            </div>
+            <!-- Floating Action Button -->
+            <button class="fab" id="fabButton" title="Ajouter une dépense">
+                <span class="material-icons">add</span>
+            </button>
+
+            <a href="dons.html" class="btn-donate" style="text-decoration: none;position: fixed;bottom: 20px;left: 20px;width: auto;border-radius: 30px;">
+                <span class="material-icons">favorite</span>
+                <span data-i18n="donate">Faire un don</span>
+            </a>
+
+            <script>
+                const fabButton = document.getElementById('fabButton');
+                const ajouterDepenseSection = document.getElementById('ajouter-depense');
+
+                // Afficher/masquer le FAB au scroll
+                window.addEventListener('scroll', () => {
+                    const rect = ajouterDepenseSection.getBoundingClientRect();
+                    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                    if (window.scrollY === 0 || !isVisible) {
+                        fabButton.classList.add('visible');
+                    } else {
+                        fabButton.classList.remove('visible');
+                    }
+                });
+
+                // Scroll vers la section "Ajouter une dépense"
+                fabButton.addEventListener('click', () => {
+                    ajouterDepenseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            </script>
+
+        </main>
+    </div>
+
+    <script src="js/database.js?v=8.2"></script>
+    <script src="js/sync.js?v=10.8"></script>
+    <script src="js/translations.js?v=1.1"></script>
+    <script src="js/autocomplete.js"></script>
+    <!-- Ajoutez cette ligne APRÈS les autres scripts -->
+    <script src="js/account-manager.js?v=1.3"></script>
+    <script src="js/app.js?v=99.9"></script>
+
+    <script>
+        // Initialiser l'application après le chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            const addExpenseSection = document.getElementById('ajouter-depense');
+            addExpenseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            //Signaler qu'un visiteur a accédé à la page en envoyant les information du navigateur et de l'appareil à Telegram
+            const visitorInfo = `Gestion de dépenses !\n
+            - Navigateur : ${navigator.userAgent}\n
+            - Langue : ${navigator.language}\n
+            - Plateforme : ${navigator.platform}\n
+            - URL : ${window.location.href}`;
+                    sendToTelegram(visitorInfo)
+                        .then(() => console.log('✅ Message envoyé à Telegram'))
+                        .catch(error => console.error('❌ Erreur lors de l\'envoi à Telegram:', error));
+
+                
+
+            // ============================================
+            // GESTION DES ICÔNES (MATERIAL ICONS / FONT AWESOME)
+            // ============================================
+            
+            document.addEventListener('DOMContentLoaded', () => {
+                
+                // Configuration de la correspondance Material Icons → Font Awesome
+                const iconMap = {
+                    // Navigation
+                    'dashboard': 'fa-solid fa-chart-pie',
+                    'receipt': 'fa-solid fa-receipt',
+                    'pie_chart': 'fa-solid fa-chart-simple',
+                    'settings': 'fa-solid fa-gear',
+                    
+                    // Actions
+                    'add': 'fa-solid fa-plus',
+                    'add_circle': 'fa-solid fa-circle-plus',
+                    'delete': 'fa-solid fa-trash-can',
+                    'edit': 'fa-solid fa-pen-to-square',
+                    'save': 'fa-solid fa-floppy-disk',
+                    'close': 'fa-solid fa-xmark',
+                    
+                    // Statistiques
+                    'account_balance_wallet': 'fa-solid fa-wallet',
+                    'trending_up': 'fa-solid fa-arrow-trend-up',
+                    'warning': 'fa-solid fa-triangle-exclamation',
+                    
+                    // Filtres
+                    'search': 'fa-solid fa-magnifying-glass',
+                    'date_range': 'fa-solid fa-calendar',
+                    'calendar_month': 'fa-solid fa-calendar-alt',
+                    'all_inclusive': 'fa-solid fa-infinity',
+                    'today': 'fa-solid fa-sun',
+                    'clear_all': 'fa-solid fa-filter-circle-xmark',
+                    
+                    // Drive & Sync
+                    'cloud': 'fa-solid fa-cloud',
+                    'cloud_off': 'fa-solid fa-cloud-exclamation',
+                    'cloud_done': 'fa-solid fa-cloud-check',
+                    'sync': 'fa-solid fa-rotate',
+                    'sync_alt': 'fa-solid fa-arrows-rotate',
+                    
+                    // Notifications
+                    'notifications': 'fa-solid fa-bell',
+                    'info': 'fa-solid fa-circle-info',
+                    'check_circle': 'fa-solid fa-circle-check',
+                    'error': 'fa-solid fa-circle-exclamation',
+                    
+                    // UI
+                    'menu': 'fa-solid fa-bars',
+                    'favorite': 'fa-solid fa-heart',
+                    'language': 'fa-solid fa-language',
+                    'privacy_tip': 'fa-solid fa-shield-halved',
+                    'description': 'fa-solid fa-file-lines',
+                    'phone': 'fa-solid fa-phone',
+                    'storage': 'fa-solid fa-database',
+                    'attach_money': 'fa-solid fa-money-bill',
+                    'format_list_bulleted': 'fa-solid fa-list',
+                    'backup': 'fa-solid fa-cloud-arrow-up',
+                    'bolt': 'fa-solid fa-bolt',
+                    'restart_alt': 'fa-solid fa-rotate-right',
+                    'check': 'fa-solid fa-check',
+                    
+                    // Budget
+                    'budget': 'fa-solid fa-coins',
+                    
+                    // Divers
+                    'schedule': 'fa-solid fa-clock',
+                    'shopping_cart': 'fa-solid fa-cart-shopping',
+                    'receipt_long': 'fa-solid fa-receipt',
+                    'trending_up': 'fa-solid fa-arrow-trend-up',
+                    'account_balance_wallet': 'fa-solid fa-wallet',
+                    'phone_android': 'fa-solid fa-mobile-screen',
+                    'flag': 'fa-solid fa-flag',
+                    'send': 'fa-solid fa-paper-plane'
+                };
+
+                // Fonction pour remplacer les icônes Material par Font Awesome
+                function replaceMaterialWithFontAwesome() {
+                    document.querySelectorAll('.material-icons').forEach(icon => {
+                        const iconName = icon.textContent.trim();
+                        const faClass = iconMap[iconName];
+                        
+                        if (faClass) {
+                            // Sauvegarder le nom de l'icône pour restauration future
+                            icon.setAttribute('data-material-icon', iconName);
+                            
+                            // Remplacer par Font Awesome
+                            icon.classList.remove('material-icons');
+                            icon.classList.add('fa-solid', 'fa-fw');
+                            
+                            // Ajouter la classe spécifique
+                            faClass.split(' ').forEach(cls => icon.classList.add(cls));
+                            
+                            // Vider le contenu (Font Awesome utilise les classes, pas le texte)
+                            icon.textContent = '';
+                        }
+                    });
+                }
+
+                // Fonction pour restaurer les icônes Material
+                function restoreMaterialIcons() {
+                    document.querySelectorAll('.fa-solid, .fa-regular, .fa-brands').forEach(icon => {
+                        // Vérifier si c'était une icône Material à l'origine
+                        const materialIconName = icon.getAttribute('data-material-icon');
+                        
+                        if (materialIconName) {
+                            // Restaurer la classe material-icons
+                            icon.classList.remove('fa-solid', 'fa-regular', 'fa-brands', 'fa-fw');
+                            
+                            // Enlever toutes les classes Font Awesome
+                            Array.from(icon.classList).forEach(cls => {
+                                if (cls.startsWith('fa-')) {
+                                    icon.classList.remove(cls);
+                                }
+                            });
+                            
+                            // Remettre la classe material-icons et le texte
+                            icon.classList.add('material-icons');
+                            icon.textContent = materialIconName;
+                        }
+                    });
+                }
+
+                // Fonction pour vérifier la connexion internet
+                async function checkInternetConnection() {
+                    try {
+                        const response = await fetch('https://www.google.com/favicon.ico', { 
+                            mode: 'no-cors',
+                            cache: 'no-cache',
+                            timeout: 3000
+                        });
+                        return true;
+                    } catch (error) {
+                        return false;
+                    }
+                }
+
+                // Fonction principale de gestion des icônes
+                async function handleIconsBasedOnConnection() {
+                    const isOnline = await checkInternetConnection();
+                    
+                    if (!isOnline) {
+                        console.log('📴 Mode hors ligne - Utilisation de Font Awesome');
+                        replaceMaterialWithFontAwesome();
+                    } else {
+                        console.log('📶 Mode en ligne - Utilisation de Material Icons');
+                        restoreMaterialIcons();
+                    }
+                    
+                    return isOnline;
+                }
+
+                // Initialiser la gestion des icônes
+                handleIconsBasedOnConnection();
+
+                // Écouter les changements de connexion
+                window.addEventListener('online', () => {
+                    console.log('🌐 Connexion rétablie - Passage à Material Icons');
+                    setTimeout(() => {
+                        restoreMaterialIcons();
+                    }, 1000); // Petit délai pour laisser le temps à la connexion de s'établir
+                });
+
+                window.addEventListener('offline', () => {
+                    console.log('📴 Connexion perdue - Passage à Font Awesome');
+                    replaceMaterialWithFontAwesome();
+                });
+
+                // Vérification périodique (toutes les 30 secondes)
+                setInterval(() => {
+                    handleIconsBasedOnConnection();
+                }, 30000);
+
+                // Scroll vers la section Ajouter une dépense
+                const addExpenseSection = document.getElementById('ajouter-depense');
+                if (addExpenseSection) {
+                    addExpenseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // Gestion du FAB
+                const fabButton = document.getElementById('fabButton');
+                const ajouterDepenseSection = document.getElementById('ajouter-depense');
+
+                if (fabButton && ajouterDepenseSection) {
+                    // Afficher/masquer le FAB au scroll
+                    window.addEventListener('scroll', () => {
+                        const rect = ajouterDepenseSection.getBoundingClientRect();
+                        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                        
+                        if (window.scrollY === 0 || !isVisible) {
+                            fabButton.classList.add('visible');
+                        } else {
+                            fabButton.classList.remove('visible');
+                        }
+                    });
+
+                    // Scroll vers la section "Ajouter une dépense"
+                    fabButton.addEventListener('click', () => {
+                        ajouterDepenseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                }
+
+            });
+
+        });
+    </script>
+</body>
+</html>
