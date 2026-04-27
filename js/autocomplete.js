@@ -190,9 +190,13 @@ class ExpenseAutocomplete {
     applySuggestion(name) {
         this.input.value = name;
         this.container.classList.remove('active');
+        this.input.blur(); // ← Perd le focus pour éviter la réouverture
         
         // Déclencher un événement input pour validation
         this.input.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Déclencher un événement change pour sauvegarder
+        this.input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     selectNext(items, currentIndex) {
