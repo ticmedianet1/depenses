@@ -477,7 +477,7 @@ getCurrencySymbol(currency) {
         'DZD': 'DA', 'TND': 'DT', 'NGN': '₦', 'ZAR': 'R', 'BRL': 'R$',
         'RUB': '₽', 'INR': '₹', 'AUD': 'A$'
     };
-    return symbols[currency] || '€';
+    return symbols[currency] || 'FCFA';
 }
 
     renderAccountList() {
