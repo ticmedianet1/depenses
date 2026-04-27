@@ -271,7 +271,7 @@ class ExpenseApp {
             'DZD': 'DA', 'TND': 'DT', 'NGN': '₦', 'ZAR': 'R', 'BRL': 'R$',
             'RUB': '₽', 'INR': '₹', 'AUD': 'A$'
         };
-        return symbols[currency] || '€';
+        return symbols[currency] || 'FCFA';
     }
 
     // Gérer les changements de filtres
@@ -431,7 +431,7 @@ class ExpenseApp {
         }
         
         const remaining = budget - total;
-        budgetEl.textContent = remaining.toFixed(2) + ' €';
+        budgetEl.textContent = remaining.toFixed(2) + ' XOF';
         
         // Changer la couleur selon le solde
         if (remaining < 0) {
@@ -1852,12 +1852,12 @@ class NotificationSystem {
             
             if (remaining < 0) {
                 this.showNotification('⚠️ Budget dépassé !', {
-                    body: `Vous avez dépassé votre budget de ${Math.abs(remaining).toFixed(2)} €.`,
+                    body: `Vous avez dépassé votre budget de ${Math.abs(remaining).toFixed(2)} XOF.`,
                     tag: 'budget-over'
                 });
             } else if (percentageUsed >= 90 && percentageUsed < 100) {
                 this.showNotification('⚠️ Budget presque épuisé', {
-                    body: `Vous avez utilisé ${percentageUsed.toFixed(0)}% de votre budget. Il reste ${remaining.toFixed(2)} €.`,
+                    body: `Vous avez utilisé ${percentageUsed.toFixed(0)}% de votre budget. Il reste ${remaining.toFixed(2)} XOF.`,
                     tag: 'budget-warning'
                 });
             } else if (percentageUsed >= 75 && percentageUsed < 90) {
