@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faire un don - Gestion Dépenses</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .donate-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .donate-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .donate-header .material-icons {
+            font-size: 80px;
+            color: #f72585;
+            animation: heartbeat 1.5s ease infinite;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        .donate-header h1 {
+            font-size: 2.5em;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .donate-content {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        .donate-content h2 {
+            color: #2b2d42;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .donate-content p {
+            color: #4a4e69;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 30px 20px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.2);
+        }
+
+        .feature .material-icons {
+            font-size: 50px;
+            color: #4361ee;
+            margin-bottom: 15px;
+        }
+
+        .feature h3 {
+            color: #2b2d42;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .feature p {
+            color: #8d99ae;
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+        .donation-note {
+            background: #e8f5e9;
+            border-left: 4px solid #4cc9f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .donation-note p {
+            margin: 0;
+            color: #2b2d42;
+        }
+
+        .donation-note strong {
+            color: #4361ee;
+        }
+
+        .donate-buttons {
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+
+        .btn-donate {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-donate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-donate .material-icons {
+            font-size: 24px;
+        }
+
+        .whatsapp-info {
+            text-align: center;
+            margin-top: 20px;
+            color: #8d99ae;
+            font-size: 0.9em;
+        }
+
+        .whatsapp-info a {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .whatsapp-info a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            35% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            55% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .donate-header h1 {
+                font-size: 2em;
+            }
+            
+            .donate-content {
+                padding: 25px;
+            }
+            
+            .feature {
+                padding: 20px 15px;
+            }
+            
+            .btn-donate {
+                padding: 15px 30px;
+                font-size: 1em;
+            }
+        }
+
+        /* Animation pour le compteur de dons (optionnel) */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .number {
+            display: block;
+            font-size: 2em;
+            font-weight: 700;
+            color: #4361ee;
+        }
+
+        .stat .label {
+            color: #8d99ae;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="donate-container">
+        <div class="donate-header">
+            <span class="material-icons">favorite</span>
+            <h1>Soutenez Gestion Dépenses</h1>
+            <p>Une application gratuite, indépendante et respectueuse de vos données</p>
+        </div>
+        
+        <div class="donate-content">
+            <h2>Pourquoi faire un don ?</h2>
+            <p>L'application Gestion Dépenses est développée et maintenue par une petite équipe passionnée. Votre don nous permet de continuer à améliorer l'application et à offrir le meilleur service possible.</p>
+            
+            <!-- Statistiques optionnelles -->
+            <div class="stats">
+                <div class="stat">
+                    <span class="number">1000+</span>
+                    <span class="label">Utilisateurs</span>
+                </div>
+                <div class="stat">
+                    <span class="number">5000+</span>
+                    <span class="label">Dépenses/jour</span>
+                </div>
+                <div class="stat">
+                    <span class="number">2</span>
+                    <span class="label">Développeurs</span>
+                </div>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature">
+                    <span class="material-icons">update</span>
+                    <h3>Mises à jour régulières</h3>
+                    <p>Nouvelles fonctionnalités et améliorations continues chaque mois</p>
+                </div>
+                <div class="feature">
+                    <span class="material-icons">support</span>
+                    <h3>Support technique</h3>
+                    <p>Assistance rapide et efficace sous 24-48h</p>
+                </div>
+                <div class="feature">
+                    <span class="material-icons">cloud</span>
+                    <h3>Infrastructure</h3>
+                    <p>Frais de serveur, domaine et maintenance</p>
+                </div>
+            </div>
+            
+            <div class="donation-note">
+                <p><strong>💡 Note importante :</strong> Aucun don n'est obligatoire. L'application restera <strong>100% gratuite</strong>, mais votre soutien est grandement apprécié et nous motive à continuer !</p>
+            </div>
+            
+            <div class="donate-buttons">
+                <a href="https://me.fedapay.com/_3h2pgOR" class="btn-donate" target="_blank" rel="noopener noreferrer">
+                    <img src="https://live.fedapay.com/assets/images/feda-logo.svg" alt="FedaPay" style="height: 24px;">
+                    Faire un Don
+                </a>
+            </div>
+
+            <div class="donate-buttons">
+                <a href="index.html" class="btn-donate" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <span class="material-icons">arrow_back</span>
+                    Retour à Gestion Dépenses
+                </a>
+            </div>
+            
+            <div class="whatsapp-info">
+                <p>Ou contactez-nous directement sur <a href="https://wa.me/2290166344554" target="_blank">WhatsApp</a> pour plus d'informations</p>
+                <p style="margin-top: 5px;">📱 +229 01 66 34 45 54</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Gestion Dépenses - Tous droits réservés</p>
+            <p style="margin-top: 5px;">
+                <a href="index.html" style="color: white; text-decoration: none;">← Retour à l'application</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Animation optionnelle pour les statistiques
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation des chiffres (optionnel)
+            const stats = document.querySelectorAll('.stat .number');
+            stats.forEach(stat => {
+                const target = parseInt(stat.textContent);
+                let current = 0;
+                const increment = target / 50;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        stat.textContent = target + '+';
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(current) + '+';
+                    }
+                }, 20);
+            });
+            
+            // Confirmation avant de quitter pour le don
+            // const donateBtn = document.querySelector('.btn-donate');
+            // donateBtn.addEventListener('click', function(e) {
+            //     const confirm = window.confirm('Vous allez être redirigé vers WhatsApp pour effectuer votre don. Continuer ?');
+            //     if (!confirm) {
+            //         e.preventDefault();
+            //     }
+            // });
+        });
+    </script>
+</body>
+</html>

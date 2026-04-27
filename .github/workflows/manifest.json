@@ -1,0 +1,97 @@
+{
+  "name": "Gestion Dépenses",
+  "short_name": "Dépenses",
+  "description": "Application de gestion de dépenses personnelles avec synchronisation Google Drive",
+  "start_url": "https://depenses.wisdak.net/",
+  "display": "standalone",
+  "background_color": "#4361ee",
+  "theme_color": "#4361ee",
+  "orientation": "portrait",
+  "scope": "https://depenses.wisdak.net/",
+  "categories": ["finance", "productivity", "utilities"],
+  "lang": "fr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icons/image.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/dashboard.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide",
+      "label": "Tableau de bord"
+    }
+    ],
+    "shortcuts": [
+        {
+        "name": "Ajouter une dépense",
+        "short_name": "Ajouter",
+        "description": "Ajouter rapidement une dépense",
+        "url": "www/depenses/index.html?action=add",
+      "icons": [{ "src": "icons/image.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Statistiques",
+      "short_name": "Stats",
+      "description": "Voir les statistiques",
+      "url": "www/depenses/index.html?action=stats",
+      "icons": [{ "src": "icons/image.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "display_override": ["standalone", "browser"],
+  "edge_side_panel": {},
+  "protocol_handlers": [],
+  "launch_handler": {
+    "client_mode": ["focus-existing"]
+  }
+}
