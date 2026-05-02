@@ -252,7 +252,7 @@ renderAccountsManageList(accounts) {
                         </span>
                         <span class="stat">
                             <span class="material-icons">money</span>
-                            ${account.total.toFixed(2)} ${symbol}
+                            ${account.total.toFixed(2)}
                         </span>
                     </div>
                 </div>
