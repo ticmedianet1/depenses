@@ -250,7 +250,7 @@ renderAccountsManageList(accounts) {
                             ${account.count} dépense${account.count > 1 ? 's' : ''}
                         </span>
                         <span class="stat">
-                            <span class="material-icons">euro</span>
+                
                             ${account.total.toFixed(2)} ${symbol}
                         </span>
                     </div>
@@ -385,7 +385,8 @@ async showDeleteAccountConfirm(accountId, closeModal) {
     const allExpenses = await this.db.getAllExpenses();
     const accountExpenses = allExpenses.filter(e => e.accountId === accountId);
     const total = accountExpenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
-    const symbol = this.getCurrencySymbol('EUR');
+    const currency = this.getCurrency('XOF');
+    const symbol = this.getCurrencySymbol('XOF');
     
     const dialog = document.createElement('div');
     dialog.className = 'account-delete-dialog';
@@ -404,7 +405,7 @@ async showDeleteAccountConfirm(accountId, closeModal) {
                         ${accountExpenses.length} dépense(s)
                     </div>
                     <div class="stat-item">
-                        <span class="material-icons">euro</span>
+                        <span class="material-icons">money</span>
                         ${total.toFixed(2)} ${symbol}
                     </div>
                 </div>
@@ -553,7 +554,7 @@ getCurrencySymbol(currency) {
             icon: 'account_balance_wallet',
             createdAt: new Date().toISOString(),
             budget: 1000,
-            currency: 'EUR'
+            currency: 'XOF'
         };
         
         const request = store.add(newAccount);
