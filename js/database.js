@@ -185,6 +185,84 @@ class ExpenseDatabase {
     // GESTION DES DÉPENSES
     // ============================================
 
+    // Dans database.js, ajoutez cette méthode après `getAllAccounts()`
+
+// Récupérer tous les paramètres du compte courant
+async getAccountSettings() {
+    const accountId = await this.ensureCurrentAccount();
+    if (!accountId) return this.getDefaultSettings();
+    
+    return new Promise((resolve) => {
+        const transaction = this.db.transaction(['accounts'], 'readwrite');
+        const store = transaction.objectStore('accounts');
+        const request = store.get(accountId);
+        
+        request.onsuccess = () => {
+            const account = request.result;
+            if (account) {
+                resolve({
+                    budget: account.budget || 1000,
+                    currency: account.currency || 'XOF',
+                    format: account.format || 'space',
+                    theme: account.theme || 'light',
+                    notificationsEnabled: account.notificationsEnabled !== false,
+                    reminderTime: account.reminderTime || '20:00',
+                    autoBackup: account.autoBackup || false,
+                    backupFrequency: account.backupFrequency || '7',
+                    storageLocation: account.storageLocation || 'local'
+                });
+            } else {
+                resolve(this.getDefaultSettings());
+            }
+        };
+        request.onerror = () => resolve(this.getDefaultSettings());
+    });
+}
+
+// Sauvegarder les paramètres du compte
+async saveAccountSettings(settings) {
+    const accountId = await this.ensureCurrentAccount();
+    if (!accountId) return false;
+    
+    return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction(['accounts'], 'readwrite');
+        const store = transaction.objectStore('accounts');
+        const request = store.get(accountId);
+        
+        request.onsuccess = () => {
+            const account = request.result;
+            if (account) {
+                const updatedAccount = { ...account, ...settings, updatedAt: new Date().toISOString() };
+                const updateRequest = store.put(updatedAccount);
+                updateRequest.onsuccess = () => resolve(true);
+                updateRequest.onerror = () => resolve(false);
+            } else {
+                resolve(false);
+            }
+        };
+        request.onerror = () => resolve(false);
+    });
+}
+
+getDefaultSettings() {
+    return {
+        budget: 1000,
+        currency: 'XOF',
+        format: 'space',
+        theme: 'light',
+        notificationsEnabled: true,
+        reminderTime: '20:00',
+        autoBackup: false,
+        backupFrequency: '7',
+        storageLocation: 'local'
+    };
+}
+
+async getCurrentBudget() {
+    const settings = await this.getAccountSettings();
+    return settings.budget;
+}
+    
     // Ajouter une dépense
     addExpense(expense) {
         return new Promise(async (resolve, reject) => {
