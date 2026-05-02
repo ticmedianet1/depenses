@@ -68,7 +68,7 @@ class ExpenseDatabase {
                     icon: 'person',
                     createdAt: new Date().toISOString(),
                     budget: 1000,
-                    currency: 'EUR',
+                    currency: 'XOF',
                     format: 'space',
                     theme: 'light',
                     notificationsEnabled: true,
