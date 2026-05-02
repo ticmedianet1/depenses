@@ -196,20 +196,26 @@ async showManageAccountsModal() {
 
 // Récupérer les statistiques des comptes
 async getAccountsStatistics(accounts) {
-    const allExpenses = await this.db.getAllExpenses();
+    // Utiliser la méthode qui récupère TOUTES les dépenses
+    const allExpenses = await this.db.getAllExpensesForAllAccounts();
+    
+    console.log('📊 Toutes les dépenses (tous comptes confondus):', allExpenses.length);
+    
     const accountsWithStats = [];
     
     for (const account of accounts) {
-        // Filtrer les dépenses par compte
-        const accountExpenses = allExpenses.filter(e => e.accountId === account.id);
-        const total = accountExpenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+        // Filtrer les dépenses par accountId
+        const accountExpenses = allExpenses.filter(expense => expense.accountId === account.id);
+        const total = accountExpenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
         const count = accountExpenses.length;
+        
+        console.log(`📊 Compte "${account.name}": ${count} dépenses, total: ${total.toFixed(2)} FCFA`);
         
         accountsWithStats.push({
             ...account,
             total: total,
             count: count,
-            currency: account.currency || 'EUR'
+            currency: account.currency || 'FCFA'
         });
     }
     
