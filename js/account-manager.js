@@ -271,6 +271,42 @@ renderAccountsManageList(accounts) {
     }).join('');
 }
 
+// Récupérer un paramètre spécifique du compte courant
+async getAccountSetting(key) {
+    const accountId = await this.ensureCurrentAccount();
+    if (!accountId) return null;
+    
+    return new Promise((resolve) => {
+        const transaction = this.db.transaction(['accounts'], 'readonly');
+        const store = transaction.objectStore('accounts');
+        const request = store.get(accountId);
+        
+        request.onsuccess = () => {
+            const account = request.result;
+            if (account && account[key] !== undefined) {
+                resolve(account[key]);
+            } else {
+                // Valeur par défaut selon le type de clé
+                const defaultValues = {
+                    budget: 1000,
+                    currency: 'EUR',
+                    format: 'space',
+                    theme: 'light',
+                    notificationsEnabled: true,
+                    reminderTime: '20:00',
+                    autoBackup: false,
+                    backupFrequency: '7',
+                    storageLocation: 'local'
+                };
+                resolve(defaultValues[key] || null);
+            }
+        };
+        request.onerror = () => {
+            resolve(null);
+        };
+    });
+}
+
 // Attacher les événements aux boutons d'action
 attachAccountActionEvents(modal, closeModal) {
     // Édition du nom
