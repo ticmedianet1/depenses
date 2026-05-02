@@ -224,6 +224,7 @@ async getAccountsStatistics(accounts) {
 
 // Afficher la liste des comptes dans la modale
 renderAccountsManageList(accounts) {
+    console.log('Rendu de la liste des comptes avec stats:', accounts);
     if (accounts.length === 0) {
         return '<div class="no-accounts">Aucun compte trouvé</div>';
     }
@@ -250,7 +251,7 @@ renderAccountsManageList(accounts) {
                             ${account.count} dépense${account.count > 1 ? 's' : ''}
                         </span>
                         <span class="stat">
-                
+                            <span class="material-icons">money</span>
                             ${account.total.toFixed(2)} ${symbol}
                         </span>
                     </div>
