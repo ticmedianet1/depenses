@@ -133,6 +133,33 @@ class ExpenseDatabase {
         });
     }
 
+    // Récupérer TOUTES les dépenses (sans filtre par compte)
+    getAllExpensesForAllAccounts() {
+        return new Promise((resolve) => {
+            if (!this.db) {
+                resolve([]);
+                return;
+            }
+            
+            try {
+                const transaction = this.db.transaction(['expenses'], 'readonly');
+                const store = transaction.objectStore('expenses');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    resolve(request.result || []);
+                };
+                request.onerror = () => {
+                    console.error('Erreur getAllExpensesForAllAccounts:', request.error);
+                    resolve([]);
+                };
+            } catch (error) {
+                console.error('Erreur getAllExpensesForAllAccounts:', error);
+                resolve([]);
+            }
+        });
+    }
+
     // S'assurer qu'un compte courant est défini
     async ensureCurrentAccount() {
         if (!this.currentAccount) {
