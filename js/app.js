@@ -1537,7 +1537,7 @@ class NavigationManager {
                 // ✅ Sauvegarder le budget dans le compte
                 // Sauvegarder le budget dans le compte
                 if (budget && window.app?.db) {
-                    window.app.db.saveAccountSettings({ budget: parseFloat(budget) }).then(() => {
+                    window.app.db.saveAccountSettings({ budget: parseFloat(budget), currency: currency }).then(() => {
                         // Mettre à jour l'affichage après sauvegarde
                         if (window.app) {
                             window.app.db.getAllExpenses().then(expenses => {
