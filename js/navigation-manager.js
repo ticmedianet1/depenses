@@ -1,5 +1,5 @@
 // ============================================
-// GESTION DE LA NAVIGATION
+// GESTION DE LA NAVIGATION - VERSION CORRIGÉE
 // ============================================
 
 class NavigationManager {
@@ -192,6 +192,7 @@ class NavigationManager {
             const expensesSection = document.querySelector('.expenses-section');
             if (expensesSection) expensesSection.parentNode.insertBefore(settingsSection, expensesSection.nextSibling);
             
+            // La fonction initSettingsEvents sera appelée après la création
             setTimeout(() => this.initSettingsEvents(), 100);
         }
         
@@ -201,7 +202,8 @@ class NavigationManager {
         settingsSection.style.display = 'block';
     }
     
-    initSettingsEvents() {
+    // ✅ CORRECTION : Ajouter async ici pour pouvoir utiliser await
+    async initSettingsEvents() {
         const applyBtn = document.getElementById('applySettingsBtn');
         if (applyBtn) {
             applyBtn.addEventListener('click', async () => {
@@ -212,7 +214,6 @@ class NavigationManager {
                 if (window.app?.db) {
                     await window.app.db.saveAccountSettings({ currency, budget, theme });
                     
-                    // Mettre à jour l'application
                     window.app.currentCurrency = currency;
                     window.app.currentBudget = parseFloat(budget);
                     document.body.setAttribute('data-theme', theme);
@@ -232,15 +233,23 @@ class NavigationManager {
             });
         }
         
-        // Charger les valeurs actuelles
-        const settings = window.app?.db ? await window.app.db.getAccountSettings() : null;
-        if (settings) {
-            const currencySelect = document.getElementById('currencySelect');
-            const budgetInput = document.getElementById('budgetInput');
-            const themeSelect = document.getElementById('themeSelect');
-            if (currencySelect) currencySelect.value = settings.currency || 'XOF';
-            if (budgetInput) budgetInput.value = settings.budget || 1000;
-            if (themeSelect) themeSelect.value = settings.theme || 'light';
+        // ✅ CORRECTION : Utiliser then() au lieu de await (ou rendre la fonction async)
+        // Version avec then() - plus sûre car pas besoin de marquer la fonction comme async
+        if (window.app?.db) {
+            window.app.db.getAccountSettings().then(settings => {
+                if (settings) {
+                    const currencySelect = document.getElementById('currencySelect');
+                    const budgetInput = document.getElementById('budgetInput');
+                    const themeSelect = document.getElementById('themeSelect');
+                    
+                    if (currencySelect) currencySelect.value = settings.currency || 'XOF';
+                    if (budgetInput) budgetInput.value = settings.budget || 1000;
+                    if (themeSelect) themeSelect.value = settings.theme || 'light';
+                    
+                    // Appliquer le thème
+                    if (settings.theme) document.body.setAttribute('data-theme', settings.theme);
+                }
+            }).catch(error => console.error('Erreur chargement paramètres:', error));
         }
     }
     
