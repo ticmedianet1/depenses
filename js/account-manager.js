@@ -418,12 +418,14 @@ async updateAccountName(accountId, newName) {
 
 // Afficher la confirmation de suppression
 async showDeleteAccountConfirm(accountId, closeModal) {
-    // Récupérer les dépenses du compte
-    const allExpenses = await this.db.getAllExpenses();
+    // Récupérer toutes les dépenses
+    const allExpenses = await this.getAllExpensesFromAllAccounts();
     const accountExpenses = allExpenses.filter(e => e.accountId === accountId);
-    const total = accountExpenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
-    const currency = this.getCurrency('XOF');
-    const symbol = this.getCurrencySymbol('XOF');
+    const total = accountExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+    
+    // ✅ CORRIGÉ : Utiliser directement la devise et getCurrencySymbol
+    const currency = 'XOF'; // Devise par défaut
+    const symbol = this.getCurrencySymbol(currency);
     
     const dialog = document.createElement('div');
     dialog.className = 'account-delete-dialog';
@@ -442,7 +444,7 @@ async showDeleteAccountConfirm(accountId, closeModal) {
                         ${accountExpenses.length} dépense(s)
                     </div>
                     <div class="stat-item">
-                        <span class="material-icons">money</span>
+                        <span class="material-icons">euro</span>
                         ${total.toFixed(2)} ${symbol}
                     </div>
                 </div>
@@ -464,17 +466,16 @@ async showDeleteAccountConfirm(accountId, closeModal) {
     };
     
     dialog.querySelector('.dialog-overlay').addEventListener('click', closeDialog);
-    document.getElementById('cancelDelete').addEventListener('click', closeDialog);
+    dialog.querySelector('#cancelDelete').addEventListener('click', closeDialog);
     
-    document.getElementById('confirmDelete').addEventListener('click', async () => {
+    dialog.querySelector('#confirmDelete').addEventListener('click', async () => {
         await this.deleteAccount(accountId, accountExpenses);
         closeDialog();
         closeModal();
-        this.showManageAccountsModal(); // Recharger la modale
+        this.showManageAccountsModal();
         if (window.app) window.app.loadExpenses();
     });
 }
-
 // Supprimer un compte et ses dépenses
 async deleteAccount(accountId, expenses) {
     // Supprimer toutes les dépenses du compte
